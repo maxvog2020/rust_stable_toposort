@@ -1,4 +1,4 @@
-use rust_stable_toposort::{scc, stable_toposort_scc, stable_toposort_scc_by_key};
+use stable_toposort::{scc, stable_toposort_scc, stable_toposort_scc_by_key};
 
 mod stable_toposort_scc_normal {
     use super::*;

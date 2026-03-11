@@ -1,4 +1,4 @@
-use rust_stable_toposort::{stable_toposort, stable_toposort_by_key, CycleError};
+use stable_toposort::{stable_toposort, stable_toposort_by_key, CycleError};
 
 mod stable_toposort_normal {
     use super::*;

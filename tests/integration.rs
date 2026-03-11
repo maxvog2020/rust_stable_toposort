@@ -1,4 +1,4 @@
-use rust_stable_toposort::{
+use stable_toposort::{
     condensation, condensation_by_key, scc, scc_by_key, stable_toposort, stable_toposort_by_key,
     stable_toposort_scc, stable_toposort_scc_by_key, toposort_layers, toposort_layers_by_key,
 };

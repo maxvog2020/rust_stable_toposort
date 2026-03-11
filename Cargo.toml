@@ -1,5 +1,5 @@
 [package]
-name = "rust_stable_toposort"
+name = "stable_toposort"
 version = "0.1.0"
 edition = "2021"
 description = "Deterministic and stable topological sorting algorithms"
