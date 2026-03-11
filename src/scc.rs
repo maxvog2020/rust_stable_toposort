@@ -54,60 +54,50 @@ where
     let mut lowlink: Vec<usize> = vec![0; n];
     let mut on_stack: Vec<bool> = vec![false; n];
     let mut components: Vec<Vec<N>> = Vec::new();
+    let mut work: Vec<(usize, usize, bool)> = Vec::new();
 
-    fn strong_connect<N: Clone>(
-        v: usize,
-        nodes: &[N],
-        adj: &[Vec<usize>],
-        index: &mut usize,
-        stack: &mut Vec<usize>,
-        indices: &mut [Option<usize>],
-        lowlink: &mut [usize],
-        on_stack: &mut [bool],
-        components: &mut Vec<Vec<N>>,
-    ) {
-        indices[v] = Some(*index);
-        lowlink[v] = *index;
-        *index += 1;
-        stack.push(v);
-        on_stack[v] = true;
-
-        for &w in &adj[v] {
-            if indices[w].is_none() {
-                strong_connect(w, nodes, adj, index, stack, indices, lowlink, on_stack, components);
-                lowlink[v] = lowlink[v].min(lowlink[w]);
-            } else if on_stack[w] {
-                lowlink[v] = lowlink[v].min(indices[w].unwrap());
-            }
+    for start in 0..n {
+        if indices[start].is_some() {
+            continue;
         }
-
-        if indices[v] == Some(lowlink[v]) {
-            let mut comp = Vec::new();
-            loop {
-                let w = stack.pop().unwrap();
-                on_stack[w] = false;
-                comp.push(nodes[w].clone());
-                if w == v {
-                    break;
+        work.push((start, 0, false));
+        while let Some((v, i, returned_from_child)) = work.pop() {
+            if i == 0 && !returned_from_child {
+                indices[v] = Some(index);
+                lowlink[v] = index;
+                index += 1;
+                stack.push(v);
+                on_stack[v] = true;
+            }
+            if i < adj[v].len() {
+                let w = adj[v][i];
+                if indices[w].is_none() {
+                    work.push((v, i + 1, true));
+                    work.push((w, 0, false));
+                } else if on_stack[w] {
+                    lowlink[v] = lowlink[v].min(indices[w].unwrap());
+                    work.push((v, i + 1, false));
+                } else {
+                    work.push((v, i + 1, false));
                 }
+                continue;
             }
-            components.push(comp);
-        }
-    }
-
-    for v in 0..n {
-        if indices[v].is_none() {
-            strong_connect(
-                v,
-                &nodes,
-                &adj,
-                &mut index,
-                &mut stack,
-                &mut indices,
-                &mut lowlink,
-                &mut on_stack,
-                &mut components,
-            );
+            if i > 0 && returned_from_child {
+                let w = adj[v][i - 1];
+                lowlink[v] = lowlink[v].min(lowlink[w]);
+            }
+            if indices[v] == Some(lowlink[v]) {
+                let mut comp = Vec::new();
+                loop {
+                    let w = stack.pop().unwrap();
+                    on_stack[w] = false;
+                    comp.push(nodes[w].clone());
+                    if w == v {
+                        break;
+                    }
+                }
+                components.push(comp);
+            }
         }
     }
 

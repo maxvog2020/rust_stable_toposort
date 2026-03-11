@@ -1,11 +1,12 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
+use crate::find_cycle;
 use crate::CycleError;
 
 pub fn toposort_layers<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
-) -> Result<Vec<Vec<N>>, CycleError>
+) -> Result<Vec<Vec<N>>, CycleError<N>>
 where
     N: Eq + std::hash::Hash + Clone,
 {
@@ -18,7 +19,7 @@ pub fn toposort_layers_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
     key: impl Fn(&N) -> K,
-) -> Result<Vec<Vec<N>>, CycleError>
+) -> Result<Vec<Vec<N>>, CycleError<N>>
 where
     N: Eq + std::hash::Hash + Clone,
     K: Ord,
@@ -32,7 +33,7 @@ fn toposort_layers_impl<N, K>(
     nodes: &[N],
     edges: impl IntoIterator<Item = (N, N)>,
     key: impl Fn(usize) -> K,
-) -> Result<Vec<Vec<N>>, CycleError>
+) -> Result<Vec<Vec<N>>, CycleError<N>>
 where
     N: Eq + std::hash::Hash + Clone,
     K: Ord,
@@ -85,7 +86,9 @@ where
     }
 
     if layers.iter().map(|l| l.len()).sum::<usize>() != nodes.len() {
-        return Err(CycleError);
+        let done: HashSet<N> = layers.iter().flat_map(|l| l.iter().cloned()).collect();
+        let cycle = find_cycle(nodes, &successors, &done);
+        return Err(CycleError { cycle });
     }
     Ok(layers)
 }

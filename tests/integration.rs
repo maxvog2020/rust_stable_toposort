@@ -1,7 +1,6 @@
 use rust_stable_toposort::{
     condensation, condensation_by_key, scc, scc_by_key, stable_toposort, stable_toposort_by_key,
     stable_toposort_scc, stable_toposort_scc_by_key, toposort_layers, toposort_layers_by_key,
-    CycleError,
 };
 
 #[test]
@@ -71,7 +70,10 @@ fn cycle() {
 
     let result = stable_toposort(nodes, edges);
 
-    assert!(matches!(result, Err(CycleError)));
+    let Err(e) = result else { panic!("expected cycle error") };
+    assert!(!e.cycle.is_empty());
+    let set: std::collections::HashSet<_> = e.cycle.iter().collect();
+    assert!(set.contains(&"A") && set.contains(&"B") && set.contains(&"C"));
 }
 
 #[test]

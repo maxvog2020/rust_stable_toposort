@@ -1,12 +1,13 @@
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::cmp::Reverse;
 
+use crate::find_cycle;
 use crate::CycleError;
 
 pub fn stable_toposort<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
-) -> Result<Vec<N>, CycleError>
+) -> Result<Vec<N>, CycleError<N>>
 where
     N: Eq + std::hash::Hash + Clone,
 {
@@ -19,7 +20,7 @@ pub fn stable_toposort_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
     key: impl Fn(&N) -> K,
-) -> Result<Vec<N>, CycleError>
+) -> Result<Vec<N>, CycleError<N>>
 where
     N: Eq + std::hash::Hash + Clone,
     K: Ord,
@@ -33,7 +34,7 @@ fn stable_toposort_impl<N, K>(
     nodes: &[N],
     edges: impl IntoIterator<Item = (N, N)>,
     key: impl Fn(usize) -> K,
-) -> Result<Vec<N>, CycleError>
+) -> Result<Vec<N>, CycleError<N>>
 where
     N: Eq + std::hash::Hash + Clone,
     K: Ord,
@@ -83,7 +84,9 @@ where
     }
 
     if result.len() != nodes.len() {
-        return Err(CycleError);
+        let done: HashSet<N> = result.iter().cloned().collect();
+        let cycle = find_cycle(nodes, &successors, &done);
+        return Err(CycleError { cycle });
     }
     Ok(result)
 }
