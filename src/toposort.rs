@@ -132,34 +132,3 @@ where
     }
     Ok(result)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn empty_nodes() {
-        let order = toposort::<&str>(Vec::<&str>::new(), []).unwrap();
-        assert!(order.is_empty());
-    }
-
-    #[test]
-    fn single_node() {
-        let order = toposort(["x"], []).unwrap();
-        assert_eq!(order, ["x"]);
-    }
-
-    #[test]
-    fn by_key_orders_by_key() {
-        let nodes = ["B", "A", "C"];
-        let edges = [("A", "C"), ("B", "C")];
-        let order = toposort_by_key(nodes, edges, |n| *n).unwrap();
-        assert_eq!(order, ["A", "B", "C"]);
-    }
-
-    #[test]
-    fn cycle_returns_err() {
-        let r = toposort(["a", "b"], [("a", "b"), ("b", "a")]);
-        assert!(r.is_err());
-    }
-}

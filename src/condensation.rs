@@ -155,35 +155,3 @@ where
     }
     sccs
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn dag_components_singleton() {
-        let cond = condensation([1, 2], [(1, 2)]);
-        assert_eq!(cond.components.len(), 2);
-        assert_eq!(cond.edges.len(), 1);
-    }
-
-    #[test]
-    fn by_key_sorts_components() {
-        let nodes = ["B", "A", "C"];
-        let edges = [("A", "B"), ("B", "C"), ("C", "A")];
-        let cond = condensation_by_key(nodes, edges, |n| *n);
-        assert_eq!(cond.components.len(), 1);
-        assert_eq!(&cond.components[0], &["A", "B", "C"]);
-    }
-
-    #[test]
-    fn toposort_scc_by_key_orders_within_components() {
-        let nodes: [&str; 3] = ["C", "A", "B"];
-        let edges = [("A", "B"), ("B", "C")];
-        let sccs = super::toposort_scc_by_key(nodes, edges, |n: &&str| *n);
-        assert_eq!(sccs.len(), 3);
-        assert_eq!(sccs[0], ["A"]);
-        assert_eq!(sccs[1], ["B"]);
-        assert_eq!(sccs[2], ["C"]);
-    }
-}

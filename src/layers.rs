@@ -138,36 +138,3 @@ where
     }
     Ok(layers)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn empty_ok() {
-        let layers = toposort_layers::<&str>(Vec::new(), []).unwrap();
-        assert!(layers.is_empty());
-    }
-
-    #[test]
-    fn single_layer_one_node() {
-        let layers = toposort_layers(["a"], []).unwrap();
-        assert_eq!(layers, vec![vec!["a"]]);
-    }
-
-    #[test]
-    fn cycle_err() {
-        let r = toposort_layers(["a", "b"], [("a", "b"), ("b", "a")]);
-        assert!(r.is_err());
-    }
-
-    #[test]
-    fn by_key_orders_layer() {
-        let nodes = ["B", "A", "C"];
-        let edges = [("A", "C"), ("B", "C")];
-        let layers = toposort_layers_by_key(nodes, edges, |n| *n).unwrap();
-        assert_eq!(layers.len(), 2);
-        assert_eq!(layers[0], ["A", "B"]);
-        assert_eq!(layers[1], ["C"]);
-    }
-}

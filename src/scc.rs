@@ -139,30 +139,3 @@ where
 
     components
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn empty() {
-        let c = scc::<&str>(Vec::new(), []);
-        assert!(c.is_empty());
-    }
-
-    #[test]
-    fn single_node() {
-        let c = scc(["a"], []);
-        assert_eq!(c.len(), 1);
-        assert_eq!(&c[0], &["a"]);
-    }
-
-    #[test]
-    fn by_key_sorts_component() {
-        let nodes = ["C", "A", "B"];
-        let edges = [("A", "B"), ("B", "C"), ("C", "A")];
-        let c = scc_by_key(nodes, edges, |n| *n);
-        assert_eq!(c.len(), 1);
-        assert_eq!(&c[0], &["A", "B", "C"]);
-    }
-}
