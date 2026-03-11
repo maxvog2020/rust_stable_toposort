@@ -1,3 +1,8 @@
+# Rust
 /target
+Cargo.lock
+
+# Internal
 TODO.md
+.DS_Store
 
