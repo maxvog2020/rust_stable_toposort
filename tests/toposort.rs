@@ -1,5 +1,5 @@
 use stable_toposort::cycle::CycleError;
-use stable_toposort::toposort::{toposort, toposort_by_key};
+use stable_toposort::toposort::{toposort, toposort_by_key, toposort_indices, toposort_indices_with_keys};
 
 mod toposort_normal {
     use super::*;
@@ -383,5 +383,208 @@ mod toposort_by_key_extra {
         let edges: [(String, String); 0] = [];
         let o = toposort_by_key(nodes, edges, |n| n.len()).unwrap();
         assert_eq!(o, ["a", "b"]);
+    }
+}
+
+mod toposort_indices_tests {
+    use super::*;
+
+    #[test]
+    fn empty() {
+        let o = toposort_indices([], 0).unwrap();
+        assert!(o.is_empty());
+    }
+
+    #[test]
+    fn single() {
+        assert_eq!(toposort_indices([], 1).unwrap(), [0]);
+    }
+
+    #[test]
+    fn two_independent() {
+        assert_eq!(toposort_indices([], 2).unwrap(), [0, 1]);
+    }
+
+    #[test]
+    fn two_ordered() {
+        assert_eq!(toposort_indices([(0, 1)], 2).unwrap(), [0, 1]);
+    }
+
+    #[test]
+    fn two_cycle() {
+        let r = toposort_indices([(0, 1), (1, 0)], 2);
+        assert!(matches!(r, Err(CycleError { .. })));
+        let Err(e) = r else { unreachable!() };
+        assert!(e.cycle.len() >= 2);
+    }
+
+    #[test]
+    fn chain_three() {
+        assert_eq!(
+            toposort_indices([(0, 1), (1, 2)], 3).unwrap(),
+            [0, 1, 2]
+        );
+    }
+
+    #[test]
+    fn diamond_stable() {
+        let o = toposort_indices([(0, 2), (1, 2)], 3).unwrap();
+        assert_eq!(o, [0, 1, 2]);
+    }
+
+    #[test]
+    fn cycle_three() {
+        let r = toposort_indices([(0, 1), (1, 2), (2, 0)], 3);
+        let Err(e) = r else { panic!("expected cycle") };
+        assert!(e.cycle.len() >= 2);
+    }
+
+    #[test]
+    fn disconnected_two_components() {
+        let o = toposort_indices([(0, 1)], 4).unwrap();
+        assert_eq!(o.len(), 4);
+        assert!(o.iter().position(|&x| x == 0).unwrap() < o.iter().position(|&x| x == 1).unwrap());
+    }
+
+    #[test]
+    fn five_node_chain() {
+        let edges = [(0, 1), (1, 2), (2, 3), (3, 4)];
+        assert_eq!(toposort_indices(edges, 5).unwrap(), [0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn double_diamond() {
+        let edges = [(0, 2), (1, 2), (2, 3), (2, 4)];
+        let o = toposort_indices(edges, 5).unwrap();
+        let pos = |i| o.iter().position(|&x| x == i).unwrap();
+        assert!(pos(0) < pos(2) && pos(1) < pos(2));
+        assert!(pos(2) < pos(3) && pos(2) < pos(4));
+    }
+
+    #[test]
+    fn large_size_no_edges() {
+        let o = toposort_indices(vec![] as Vec<(usize, usize)>, 20).unwrap();
+        assert_eq!(o, (0..20).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn cycle_contains_indices() {
+        let r = toposort_indices([(0, 1), (1, 2), (2, 3), (3, 0)], 4);
+        let Err(e) = r else { panic!() };
+        let set: std::collections::HashSet<_> = e.cycle.iter().collect();
+        assert!(set.len() >= 2);
+    }
+}
+
+mod toposort_indices_with_keys_tests {
+    use super::*;
+
+    #[test]
+    fn empty() {
+        let keys: [i32; 0] = [];
+        let o = toposort_indices_with_keys([], &keys).unwrap();
+        assert!(o.is_empty());
+    }
+
+    #[test]
+    fn single() {
+        let keys = [10];
+        assert_eq!(toposort_indices_with_keys([], &keys).unwrap(), [0]);
+    }
+
+    #[test]
+    fn two_independent_ordered_by_key() {
+        let keys = [20, 10];
+        let o = toposort_indices_with_keys([], &keys).unwrap();
+        assert_eq!(o, [1, 0]);
+    }
+
+    #[test]
+    fn two_ordered() {
+        let keys = ["a", "b"];
+        assert_eq!(toposort_indices_with_keys([(0, 1)], &keys).unwrap(), [0, 1]);
+    }
+
+    #[test]
+    fn two_cycle() {
+        let keys = [1, 2];
+        let r = toposort_indices_with_keys([(0, 1), (1, 0)], &keys);
+        assert!(r.is_err());
+    }
+
+    #[test]
+    fn diamond_ordered_by_key() {
+        let keys = ["C", "A", "B"];
+        let edges = [(0, 2), (1, 2)];
+        let o = toposort_indices_with_keys(edges, &keys).unwrap();
+        assert_eq!(o, [1, 0, 2]);
+    }
+
+    #[test]
+    fn chain_three() {
+        let keys = [0, 1, 2];
+        assert_eq!(
+            toposort_indices_with_keys([(0, 1), (1, 2)], &keys).unwrap(),
+            [0, 1, 2]
+        );
+    }
+
+    #[test]
+    fn key_identity_matches_indices() {
+        let keys = [0, 1, 2];
+        let edges = [(0, 2), (1, 2)];
+        let o = toposort_indices_with_keys(edges, &keys).unwrap();
+        assert_eq!(o, [0, 1, 2]);
+    }
+
+    #[test]
+    fn key_reverse_ord() {
+        let keys = [30, 10, 20];
+        let edges = [(1, 2), (2, 0)];
+        let o = toposort_indices_with_keys(edges, &keys).unwrap();
+        assert_eq!(o, [1, 2, 0]);
+    }
+
+    #[test]
+    fn key_tuple_primary_secondary() {
+        let keys = [(2, 1), (1, 2), (1, 1)];
+        let edges = [(0, 1), (2, 1)];
+        let o = toposort_indices_with_keys(edges, &keys).unwrap();
+        let pos = |i| o.iter().position(|&x| x == i).unwrap();
+        assert!(pos(2) < pos(1) && pos(0) < pos(1));
+    }
+
+    #[test]
+    fn cycle_error() {
+        let keys = ["x", "y"];
+        let r = toposort_indices_with_keys([(0, 1), (1, 0)], &keys);
+        assert!(r.is_err());
+    }
+
+    #[test]
+    fn key_constant_preserves_topo() {
+        let keys = [0, 0, 0];
+        let edges = [(0, 2), (1, 2)];
+        let o = toposort_indices_with_keys(edges, &keys).unwrap();
+        assert_eq!(o.len(), 3);
+        let pos = |i| o.iter().position(|&x| x == i).unwrap();
+        assert!(pos(0) < pos(2) && pos(1) < pos(2));
+    }
+
+    #[test]
+    fn key_large_dag() {
+        let keys: Vec<i32> = (0..50).collect();
+        let edges: Vec<(usize, usize)> = (0..49).map(|i| (i, i + 1)).collect();
+        let o = toposort_indices_with_keys(edges, &keys).unwrap();
+        assert_eq!(o, (0..50).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn key_string_alphabetic() {
+        let keys = ["M", "A", "Z"];
+        let edges = [(1, 0), (1, 2)];
+        let o = toposort_indices_with_keys(edges, &keys).unwrap();
+        assert_eq!(o[0], 1);
+        assert_eq!(o[2], 2);
     }
 }
