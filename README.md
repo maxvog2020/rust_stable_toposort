@@ -24,7 +24,7 @@ API is `nodes` + `edges` iterators; `(a, b)` means a → b. No graph type requir
 ## Example
 
 ```rust
-use stable_toposort::toposort;
+use stable_toposort::toposort::toposort;
 
 let order = toposort(["A", "B", "C"], [("A", "C"), ("B", "C")]).unwrap();
 assert_eq!(order, ["A", "B", "C"]);

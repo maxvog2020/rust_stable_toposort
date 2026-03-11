@@ -1,7 +1,7 @@
-use stable_toposort::{
-    condensation, condensation_by_key, scc, scc_by_key, toposort, toposort_by_key,
-    toposort_scc, toposort_scc_by_key, toposort_layers, toposort_layers_by_key,
-};
+use stable_toposort::condensation::{condensation, condensation_by_key, toposort_scc, toposort_scc_by_key};
+use stable_toposort::layers::{toposort_layers, toposort_layers_by_key};
+use stable_toposort::scc::{scc, scc_by_key};
+use stable_toposort::toposort::{toposort, toposort_by_key};
 
 #[test]
 fn basic() {

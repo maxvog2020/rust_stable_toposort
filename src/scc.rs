@@ -12,7 +12,7 @@ use std::collections::HashMap;
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::scc;
+/// use stable_toposort::scc::scc;
 ///
 /// let nodes = ["a", "b", "c"];
 /// let edges = [("a", "b"), ("b", "c"), ("c", "a")];
@@ -38,7 +38,7 @@ where
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::scc_by_key;
+/// use stable_toposort::scc::scc_by_key;
 ///
 /// let nodes = ["C", "A", "B"];
 /// let edges = [("A", "B"), ("B", "C"), ("C", "A")];

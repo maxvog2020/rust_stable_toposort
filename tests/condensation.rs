@@ -1,6 +1,6 @@
-use stable_toposort::{
-    condensation, condensation_by_key, scc, toposort,
-};
+use stable_toposort::condensation::{condensation, condensation_by_key};
+use stable_toposort::scc::scc;
+use stable_toposort::toposort::toposort;
 
 mod condensation_normal {
     use super::*;

@@ -1,5 +1,4 @@
-use stable_toposort::scc;
-use stable_toposort::scc_by_key;
+use stable_toposort::scc::{scc, scc_by_key};
 
 mod scc_normal {
     use super::*;

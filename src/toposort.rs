@@ -3,7 +3,7 @@
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::cmp::Reverse;
 
-use crate::{find_cycle, CycleError};
+use crate::cycle::{find_cycle, CycleError};
 
 /// Computes a deterministic topological order of `nodes` respecting `edges`.
 ///
@@ -13,13 +13,13 @@ use crate::{find_cycle, CycleError};
 ///
 /// # Errors
 ///
-/// Returns [`CycleError`] if the graph contains a cycle. The error's `cycle` field
+/// Returns [`cycle::CycleError`] if the graph contains a cycle. The error's `cycle` field
 /// contains a sequence of nodes that form a cycle.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::toposort;
+/// use stable_toposort::toposort::toposort;
 ///
 /// let nodes = ["prepare", "compile", "link"];
 /// let edges = [("prepare", "compile"), ("compile", "link")];
@@ -46,12 +46,12 @@ where
 ///
 /// # Errors
 ///
-/// Returns [`CycleError`] if the graph contains a cycle.
+/// Returns [`cycle::CycleError`] if the graph contains a cycle.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::toposort_by_key;
+/// use stable_toposort::toposort::toposort_by_key;
 ///
 /// let nodes = ["B", "A", "C"];
 /// let edges = [("A", "C"), ("B", "C")];

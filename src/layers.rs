@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::{find_cycle, CycleError};
+use crate::cycle::{find_cycle, CycleError};
 
 /// Partitions nodes into layers such that edges only go from earlier to later layers.
 ///
@@ -16,12 +16,12 @@ use crate::{find_cycle, CycleError};
 ///
 /// # Errors
 ///
-/// Returns [`CycleError`] if the graph contains a cycle.
+/// Returns [`cycle::CycleError`] if the graph contains a cycle.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::toposort_layers;
+/// use stable_toposort::layers::toposort_layers;
 ///
 /// let nodes = ["a", "b", "c"];
 /// let edges = [("a", "c"), ("b", "c")];
@@ -47,12 +47,12 @@ where
 ///
 /// # Errors
 ///
-/// Returns [`CycleError`] if the graph contains a cycle.
+/// Returns [`cycle::CycleError`] if the graph contains a cycle.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::toposort_layers_by_key;
+/// use stable_toposort::layers::toposort_layers_by_key;
 ///
 /// let nodes = ["B", "A", "C"];
 /// let edges = [("A", "C"), ("B", "C")];

@@ -2,8 +2,8 @@
 
 use std::collections::HashSet;
 
-use crate::scc;
-use crate::toposort;
+use crate::scc::scc;
+use crate::toposort::toposort;
 
 /// The condensation of a directed graph: one node per SCC, edges between components.
 ///
@@ -29,7 +29,7 @@ pub struct Condensation<N> {
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::condensation;
+/// use stable_toposort::condensation::condensation;
 ///
 /// let nodes = [1, 2, 3];
 /// let edges = [(1, 2), (2, 3)];
@@ -99,7 +99,7 @@ where
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::toposort_scc;
+/// use stable_toposort::condensation::toposort_scc;
 ///
 /// let nodes = ["a", "b", "c"];
 /// let edges = [("a", "b"), ("b", "c")];
@@ -133,7 +133,7 @@ where
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::toposort_scc_by_key;
+/// use stable_toposort::condensation::toposort_scc_by_key;
 ///
 /// let nodes = ["C", "A", "B"];
 /// let edges = [("A", "B"), ("B", "C")];

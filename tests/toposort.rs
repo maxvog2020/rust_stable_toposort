@@ -1,4 +1,5 @@
-use stable_toposort::{toposort, toposort_by_key, CycleError};
+use stable_toposort::cycle::CycleError;
+use stable_toposort::toposort::{toposort, toposort_by_key};
 
 mod toposort_normal {
     use super::*;

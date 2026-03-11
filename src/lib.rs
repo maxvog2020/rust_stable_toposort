@@ -7,17 +7,17 @@
 //!
 //! # Algorithms
 //!
-//! - **Topological sort**: [`toposort`] / [`toposort_by_key`] — order
+//! - **Topological sort**: [`toposort::toposort`] / [`toposort::toposort_by_key`] — order
 //!   all nodes so that every edge goes from an earlier to a later node. Fails with
-//!   [`CycleError`] if the graph has a cycle.
-//! - **Layers**: [`toposort_layers`] / [`toposort_layers_by_key`] — group nodes into
+//!   [`cycle::CycleError`] if the graph has a cycle.
+//! - **Layers**: [`layers::toposort_layers`] / [`layers::toposort_layers_by_key`] — group nodes into
 //!   layers (e.g. for parallel execution); nodes in the same layer have no dependencies
 //!   on each other.
-//! - **Strongly connected components (SCC)**: [`scc`] / [`scc_by_key`] — partition
+//! - **Strongly connected components (SCC)**: [`scc::scc`] / [`scc::scc_by_key`] — partition
 //!   the graph into maximal strongly connected components.
-//! - **Condensation**: [`condensation`] / [`condensation_by_key`] — build the DAG
-//!   of SCCs; [`Condensation`] holds the components and edges between component indices.
-//! - **Toposort of SCCs**: [`toposort_scc`] / [`toposort_scc_by_key`] —
+//! - **Condensation**: [`condensation::condensation`] / [`condensation::condensation_by_key`] — build the DAG
+//!   of SCCs; [`condensation::Condensation`] holds the components and edges between component indices.
+//! - **Toposort of SCCs**: [`condensation::toposort_scc`] / [`condensation::toposort_scc_by_key`] —
 //!   return SCCs in topological order (each SCC as a `Vec<N>`).
 //!
 //! # Examples
@@ -25,7 +25,7 @@
 //! Topological sort (DAG):
 //!
 //! ```rust
-//! use stable_toposort::toposort;
+//! use stable_toposort::toposort::toposort;
 //!
 //! let nodes = ["prepare", "compile", "link"];
 //! let edges = [("prepare", "compile"), ("compile", "link")];
@@ -36,7 +36,8 @@
 //! Cycle detection:
 //!
 //! ```rust
-//! use stable_toposort::{toposort, CycleError};
+//! use stable_toposort::cycle::CycleError;
+//! use stable_toposort::toposort::toposort;
 //!
 //! let nodes = ["a", "b"];
 //! let edges = [("a", "b"), ("b", "a")];
@@ -47,22 +48,22 @@
 //! Layers (for parallelization):
 //!
 //! ```rust
-//! use stable_toposort::toposort_layers;
+//! use stable_toposort::layers::toposort_layers;
 //!
 //! let nodes = ["a", "b", "c"];
 //! let edges = [("a", "c"), ("b", "c")];
 //! let layers = toposort_layers(nodes, edges).unwrap();
 //! assert_eq!(layers, vec![vec!["a", "b"], vec!["c"]]);
 //! ```
+//!
+//! # Module organization
+//!
+//! The API is organized into public modules: [`cycle`], [`toposort`], [`layers`], [`scc`],
+//! and [`condensation`]. Use the module path to access types and functions (e.g.
+//! `stable_toposort::toposort::toposort`, `stable_toposort::cycle::CycleError`).
 
-mod cycle;
-mod toposort;
-mod layers;
-mod scc;
-mod condensation;
-
-pub use cycle::{find_cycle, CycleError};
-pub use toposort::{toposort, toposort_by_key};
-pub use layers::{toposort_layers, toposort_layers_by_key};
-pub use scc::{scc, scc_by_key};
-pub use condensation::{Condensation, condensation, condensation_by_key, toposort_scc, toposort_scc_by_key};
+pub mod cycle;
+pub mod toposort;
+pub mod layers;
+pub mod scc;
+pub mod condensation;

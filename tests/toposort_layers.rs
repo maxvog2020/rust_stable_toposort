@@ -1,4 +1,4 @@
-use stable_toposort::{toposort_layers, toposort_layers_by_key};
+use stable_toposort::layers::{toposort_layers, toposort_layers_by_key};
 
 mod toposort_layers_normal {
     use super::*;
