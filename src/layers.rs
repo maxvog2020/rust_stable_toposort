@@ -1,12 +1,7 @@
-//! Layered topological order for parallel scheduling.
-
 use std::collections::HashMap;
 
 use crate::CycleError;
 
-/// Returns nodes grouped by layer: each inner vec is a set of nodes with no
-/// dependencies among themselves (can run in parallel). `(a, b)` means a → b.
-/// Nodes within each layer are ordered by their position in `nodes`.
 pub fn toposort_layers<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -19,7 +14,6 @@ where
     toposort_layers_impl(&nodes, edges, |i| i)
 }
 
-/// Like `toposort_layers`, but nodes within each layer are ordered by `key(n)`.
 pub fn toposort_layers_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -124,7 +118,7 @@ mod tests {
         let edges = [("A", "C"), ("B", "C")];
         let layers = toposort_layers_by_key(nodes, edges, |n| *n).unwrap();
         assert_eq!(layers.len(), 2);
-        assert_eq!(layers[0], ["A", "B"]); // alphabetical within layer
+        assert_eq!(layers[0], ["A", "B"]);
         assert_eq!(layers[1], ["C"]);
     }
 }

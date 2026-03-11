@@ -1,12 +1,9 @@
-//! Integration tests from TODO.md
-
 use rust_stable_toposort::{
     condensation, condensation_by_key, scc, scc_by_key, stable_toposort, stable_toposort_by_key,
     stable_toposort_scc, stable_toposort_scc_by_key, toposort_layers, toposort_layers_by_key,
     CycleError,
 };
 
-// --- Example 1: basic ---
 #[test]
 fn basic() {
     let nodes = ["A", "B", "C"];
@@ -17,7 +14,6 @@ fn basic() {
     assert_eq!(order, vec!["A", "B", "C"]);
 }
 
-// --- Example 2: stability (original order B A C) ---
 #[test]
 fn stability() {
     let nodes = ["B", "A", "C"];
@@ -28,7 +24,6 @@ fn stability() {
     assert_eq!(order, vec!["B", "A", "C"]);
 }
 
-// --- Example 3: layers ---
 #[test]
 fn layers() {
     let nodes = ["A", "B", "C", "D"];
@@ -39,7 +34,6 @@ fn layers() {
     assert_eq!(layers, vec![vec!["A", "B"], vec!["C"], vec!["D"]]);
 }
 
-// --- Diamond: A,B -> C ---
 #[test]
 fn diamond() {
     let nodes = ["A", "B", "C"];
@@ -50,7 +44,6 @@ fn diamond() {
     assert_eq!(order, vec!["A", "B", "C"]);
 }
 
-// --- Independent nodes ---
 #[test]
 fn independent_nodes() {
     let nodes = ["A", "B", "C"];
@@ -61,7 +54,6 @@ fn independent_nodes() {
     assert_eq!(order, vec!["A", "B", "C"]);
 }
 
-// --- Chain A -> B -> C ---
 #[test]
 fn chain() {
     let nodes = ["A", "B", "C"];
@@ -72,7 +64,6 @@ fn chain() {
     assert_eq!(order, vec!["A", "B", "C"]);
 }
 
-// --- Cycle A -> B -> C -> A ---
 #[test]
 fn cycle() {
     let nodes = ["A", "B", "C"];
@@ -83,14 +74,8 @@ fn cycle() {
     assert!(matches!(result, Err(CycleError)));
 }
 
-// --- Layers with diamond from TODO ---
 #[test]
 fn layers_diamond() {
-    // A B
-    //  \/
-    //   C
-    //   |
-    //  D E
     let nodes = ["A", "B", "C", "D", "E"];
     let edges = [("A", "C"), ("B", "C"), ("C", "D"), ("C", "E")];
 
@@ -102,7 +87,6 @@ fn layers_diamond() {
     assert_eq!(layers[2], ["D", "E"]);
 }
 
-// --- SCC: independent nodes => each is its own component ---
 #[test]
 fn scc_single() {
     let nodes = ["A", "B", "C"];
@@ -116,7 +100,6 @@ fn scc_single() {
     assert_eq!(flat, ["A", "B", "C"]);
 }
 
-// --- SCC: cycle gives one component ---
 #[test]
 fn scc_cycle() {
     let nodes = ["A", "B", "C"];
@@ -131,7 +114,6 @@ fn scc_cycle() {
     assert!(components[0].contains(&"C"));
 }
 
-// --- Condensation ---
 #[test]
 fn condensation_dag() {
     let nodes = [1, 2, 3];
@@ -139,15 +121,12 @@ fn condensation_dag() {
 
     let cond = condensation(nodes, edges);
 
-    // Three nodes, no cycles => three components (each node alone)
     assert_eq!(cond.components.len(), 3);
     assert_eq!(cond.edges.len(), 2);
-    // Condensation of a chain has exactly two edges (1->2, 2->3 between components)
     let edge_set: std::collections::HashSet<_> = cond.edges.into_iter().collect();
     assert_eq!(edge_set.len(), 2);
 }
 
-// --- stable_toposort_scc ---
 #[test]
 fn stable_toposort_scc_dag() {
     let nodes = ["A", "B", "C"];
@@ -164,7 +143,6 @@ fn stable_toposort_scc_dag() {
     assert!(all.contains(&"A") && all.contains(&"B") && all.contains(&"C"));
 }
 
-// --- Empty and single-node ---
 #[test]
 fn empty_graph() {
     let order = stable_toposort::<&str>(Vec::new(), []).unwrap();
@@ -183,17 +161,13 @@ fn layers_empty() {
     assert!(layers.is_empty());
 }
 
-// --- By-key variants ---
 #[test]
 fn stable_toposort_by_key_custom_order() {
-    // Key = length: among roots (aaa, b) we take smallest key first (b has len 1).
-    // Among nodes that become ready after b (only cc), order is deterministic.
     let nodes = ["aaa", "b", "cc"];
     let edges = [("b", "cc"), ("aaa", "cc")];
     let order = stable_toposort_by_key(nodes, edges, |n| n.len()).unwrap();
-    assert_eq!(order[0], "b"); // b (len 1) before aaa (len 3)
+    assert_eq!(order[0], "b");
     assert!(order.contains(&"aaa") && order.contains(&"cc"));
-    // Valid topo: b and aaa must precede cc
     let pos = |n: &str| order.iter().position(|&x| x == n).unwrap();
     assert!(pos("b") < pos("cc") && pos("aaa") < pos("cc"));
 }
@@ -238,16 +212,14 @@ fn stable_toposort_scc_by_key_integration() {
     assert!(flat.contains("A") && flat.contains("B") && flat.contains("C"));
 }
 
-// --- Edges referencing unknown nodes are ignored ---
 #[test]
 fn edges_ignored_for_unknown_nodes() {
     let nodes = ["A", "B"];
-    let edges = [("A", "B"), ("A", "Z"), ("Z", "B")]; // Z not in nodes
+    let edges = [("A", "B"), ("A", "Z"), ("Z", "B")];
     let order = stable_toposort(nodes, edges).unwrap();
     assert_eq!(order, ["A", "B"]);
 }
 
-// --- Cycle in layers ---
 #[test]
 fn layers_cycle_error() {
     let r = toposort_layers(["a", "b", "c"], [("a", "b"), ("b", "c"), ("c", "a")]);

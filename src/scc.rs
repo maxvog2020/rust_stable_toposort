@@ -1,9 +1,5 @@
-//! Strongly connected components (Tarjan's algorithm).
-
 use std::collections::HashMap;
 
-/// Returns strongly connected components. Each inner vec is one SCC.
-/// Order of components is reverse topological order of the condensation.
 pub fn scc<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -14,7 +10,6 @@ where
     scc_impl(nodes, edges)
 }
 
-/// Like `scc`, but nodes within each component are sorted by `key(n)`.
 pub fn scc_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,

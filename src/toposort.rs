@@ -1,12 +1,8 @@
-//! Stable topological sort using Kahn's algorithm.
-
 use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Reverse;
 
 use crate::CycleError;
 
-/// Stable topological sort: returns a valid topological order that minimizes
-/// inversions relative to the order in `nodes`. `(a, b)` in `edges` means a → b.
 pub fn stable_toposort<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -19,7 +15,6 @@ where
     stable_toposort_impl(&nodes, edges, |i| i)
 }
 
-/// Like `stable_toposort`, but stability is determined by `key(n)` instead of node identity.
 pub fn stable_toposort_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -34,7 +29,6 @@ where
     stable_toposort_impl(&nodes, edges, |i| key(&nodes[i]))
 }
 
-/// Common implementation: `key` maps node index → ordering key.
 fn stable_toposort_impl<N, K>(
     nodes: &[N],
     edges: impl IntoIterator<Item = (N, N)>,
@@ -114,7 +108,6 @@ mod tests {
     fn by_key_orders_by_key() {
         let nodes = ["B", "A", "C"];
         let edges = [("A", "C"), ("B", "C")];
-        // key = identity: order within same "level" follows key order A < B < C
         let order = stable_toposort_by_key(nodes, edges, |n| *n).unwrap();
         assert_eq!(order, ["A", "B", "C"]);
     }

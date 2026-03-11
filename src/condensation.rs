@@ -1,19 +1,14 @@
-//! Condensation graph: collapse SCCs into a DAG.
-
 use std::collections::HashSet;
 
 use crate::scc;
 use crate::stable_toposort;
 
-/// Result of collapsing SCCs: components and edges between component indices.
 #[derive(Debug, Clone)]
 pub struct Condensation<N> {
     pub components: Vec<Vec<N>>,
     pub edges: Vec<(usize, usize)>,
 }
 
-/// Builds the condensation DAG: each component is a node, edges go from
-/// component i to j if there is an edge from any node in i to any node in j.
 pub fn condensation<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -44,7 +39,6 @@ where
     Condensation { components, edges }
 }
 
-/// Like `condensation`, but nodes within each component are sorted by `key(n)`.
 pub fn condensation_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -61,7 +55,6 @@ where
     cond
 }
 
-/// Returns SCCs in topological order, stable relative to original node order.
 pub fn stable_toposort_scc<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -81,7 +74,6 @@ where
         .collect()
 }
 
-/// Like `stable_toposort_scc`, but nodes within each component are sorted by `key(n)`.
 pub fn stable_toposort_scc_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
