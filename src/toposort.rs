@@ -19,14 +19,14 @@ use crate::{find_cycle, CycleError};
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::stable_toposort;
+/// use stable_toposort::toposort;
 ///
 /// let nodes = ["prepare", "compile", "link"];
 /// let edges = [("prepare", "compile"), ("compile", "link")];
-/// let order = stable_toposort(nodes, edges).unwrap();
+/// let order = toposort(nodes, edges).unwrap();
 /// assert_eq!(order, ["prepare", "compile", "link"]);
 /// ```
-pub fn stable_toposort<N>(
+pub fn toposort<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
 ) -> Result<Vec<N>, CycleError<N>>
@@ -35,12 +35,12 @@ where
 {
     let nodes: Vec<N> = nodes.into_iter().collect();
     let edges: Vec<(N, N)> = edges.into_iter().collect();
-    stable_toposort_impl(&nodes, edges, |i| i)
+    toposort_impl(&nodes, edges, |i| i)
 }
 
 /// Computes a deterministic topological order, ordering ties by `key`.
 ///
-/// Same as [`stable_toposort`], but when multiple nodes are valid as the next in
+/// Same as [`toposort`], but when multiple nodes are valid as the next in
 /// the order, they are ordered by comparing `key(node)`. This gives full control
 /// over the resulting order (e.g. alphabetical, or by priority).
 ///
@@ -51,14 +51,14 @@ where
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::stable_toposort_by_key;
+/// use stable_toposort::toposort_by_key;
 ///
 /// let nodes = ["B", "A", "C"];
 /// let edges = [("A", "C"), ("B", "C")];
-/// let order = stable_toposort_by_key(nodes, edges, |n| *n).unwrap();
+/// let order = toposort_by_key(nodes, edges, |n| *n).unwrap();
 /// assert_eq!(order, ["A", "B", "C"]);
 /// ```
-pub fn stable_toposort_by_key<N, K>(
+pub fn toposort_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
     key: impl Fn(&N) -> K,
@@ -69,10 +69,10 @@ where
 {
     let nodes: Vec<N> = nodes.into_iter().collect();
     let edges: Vec<(N, N)> = edges.into_iter().collect();
-    stable_toposort_impl(&nodes, edges, |i| key(&nodes[i]))
+    toposort_impl(&nodes, edges, |i| key(&nodes[i]))
 }
 
-fn stable_toposort_impl<N, K>(
+fn toposort_impl<N, K>(
     nodes: &[N],
     edges: impl IntoIterator<Item = (N, N)>,
     key: impl Fn(usize) -> K,
@@ -139,13 +139,13 @@ mod tests {
 
     #[test]
     fn empty_nodes() {
-        let order = stable_toposort::<&str>(Vec::<&str>::new(), []).unwrap();
+        let order = toposort::<&str>(Vec::<&str>::new(), []).unwrap();
         assert!(order.is_empty());
     }
 
     #[test]
     fn single_node() {
-        let order = stable_toposort(["x"], []).unwrap();
+        let order = toposort(["x"], []).unwrap();
         assert_eq!(order, ["x"]);
     }
 
@@ -153,13 +153,13 @@ mod tests {
     fn by_key_orders_by_key() {
         let nodes = ["B", "A", "C"];
         let edges = [("A", "C"), ("B", "C")];
-        let order = stable_toposort_by_key(nodes, edges, |n| *n).unwrap();
+        let order = toposort_by_key(nodes, edges, |n| *n).unwrap();
         assert_eq!(order, ["A", "B", "C"]);
     }
 
     #[test]
     fn cycle_returns_err() {
-        let r = stable_toposort(["a", "b"], [("a", "b"), ("b", "a")]);
+        let r = toposort(["a", "b"], [("a", "b"), ("b", "a")]);
         assert!(r.is_err());
     }
 }

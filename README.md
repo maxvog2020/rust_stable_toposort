@@ -12,11 +12,11 @@ Given a DAG and an ordering of nodes, the crate computes a **topological order t
 
 ## Implemented
 
-- stable topological sort (`stable_toposort`, `stable_toposort_by_key`)
+- stable topological sort (`toposort`, `toposort_by_key`)
 - layered topological order (`toposort_layers`, `toposort_layers_by_key`)
 - strongly connected components (`scc`, `scc_by_key`)
 - condensation graph (`condensation`, `condensation_by_key`)
-- stable toposort of SCCs (`stable_toposort_scc`, `stable_toposort_scc_by_key`)
+- toposort of SCCs (`toposort_scc`, `toposort_scc_by_key`)
 - cycle detection (`CycleError<N>` with `.cycle`, `find_cycle`)
 
 API is `nodes` + `edges` iterators; `(a, b)` means a → b. No graph type required.
@@ -24,9 +24,9 @@ API is `nodes` + `edges` iterators; `(a, b)` means a → b. No graph type requir
 ## Example
 
 ```rust
-use stable_toposort::stable_toposort;
+use stable_toposort::toposort;
 
-let order = stable_toposort(["A", "B", "C"], [("A", "C"), ("B", "C")]).unwrap();
+let order = toposort(["A", "B", "C"], [("A", "C"), ("B", "C")]).unwrap();
 assert_eq!(order, ["A", "B", "C"]);
 ```
 

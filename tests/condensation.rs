@@ -1,5 +1,5 @@
 use stable_toposort::{
-    condensation, condensation_by_key, scc, stable_toposort,
+    condensation, condensation_by_key, scc, toposort,
 };
 
 mod condensation_normal {
@@ -81,7 +81,7 @@ mod condensation_normal {
         let edges = [("a", "b"), ("b", "c")];
         let c = condensation(nodes, edges);
         assert_eq!(c.components.len(), 3);
-        let order = stable_toposort(0..c.components.len(), c.edges.iter().copied()).unwrap();
+        let order = toposort(0..c.components.len(), c.edges.iter().copied()).unwrap();
         assert_eq!(order.len(), 3);
         let pos: std::collections::HashMap<_, _> = order.iter().enumerate().map(|(i, &j)| (j, i)).collect();
         for &(i, j) in &c.edges {

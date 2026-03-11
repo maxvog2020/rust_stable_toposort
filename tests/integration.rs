@@ -1,6 +1,6 @@
 use stable_toposort::{
-    condensation, condensation_by_key, scc, scc_by_key, stable_toposort, stable_toposort_by_key,
-    stable_toposort_scc, stable_toposort_scc_by_key, toposort_layers, toposort_layers_by_key,
+    condensation, condensation_by_key, scc, scc_by_key, toposort, toposort_by_key,
+    toposort_scc, toposort_scc_by_key, toposort_layers, toposort_layers_by_key,
 };
 
 #[test]
@@ -8,7 +8,7 @@ fn basic() {
     let nodes = ["A", "B", "C"];
     let edges = [("A", "C"), ("B", "C")];
 
-    let order = stable_toposort(nodes, edges).unwrap();
+    let order = toposort(nodes, edges).unwrap();
 
     assert_eq!(order, vec!["A", "B", "C"]);
 }
@@ -18,7 +18,7 @@ fn stability() {
     let nodes = ["B", "A", "C"];
     let edges = [("A", "C"), ("B", "C")];
 
-    let order = stable_toposort(nodes, edges).unwrap();
+    let order = toposort(nodes, edges).unwrap();
 
     assert_eq!(order, vec!["B", "A", "C"]);
 }
@@ -38,7 +38,7 @@ fn diamond() {
     let nodes = ["A", "B", "C"];
     let edges = [("A", "C"), ("B", "C")];
 
-    let order = stable_toposort(nodes, edges).unwrap();
+    let order = toposort(nodes, edges).unwrap();
 
     assert_eq!(order, vec!["A", "B", "C"]);
 }
@@ -48,7 +48,7 @@ fn independent_nodes() {
     let nodes = ["A", "B", "C"];
     let edges: [(&str, &str); 0] = [];
 
-    let order = stable_toposort(nodes, edges).unwrap();
+    let order = toposort(nodes, edges).unwrap();
 
     assert_eq!(order, vec!["A", "B", "C"]);
 }
@@ -58,7 +58,7 @@ fn chain() {
     let nodes = ["A", "B", "C"];
     let edges = [("A", "B"), ("B", "C")];
 
-    let order = stable_toposort(nodes, edges).unwrap();
+    let order = toposort(nodes, edges).unwrap();
 
     assert_eq!(order, vec!["A", "B", "C"]);
 }
@@ -68,7 +68,7 @@ fn cycle() {
     let nodes = ["A", "B", "C"];
     let edges = [("A", "B"), ("B", "C"), ("C", "A")];
 
-    let result = stable_toposort(nodes, edges);
+    let result = toposort(nodes, edges);
 
     let Err(e) = result else { panic!("expected cycle error") };
     assert!(!e.cycle.is_empty());
@@ -130,11 +130,11 @@ fn condensation_dag() {
 }
 
 #[test]
-fn stable_toposort_scc_dag() {
+fn toposort_scc_dag() {
     let nodes = ["A", "B", "C"];
     let edges = [("A", "B"), ("B", "C")];
 
-    let sccs = stable_toposort_scc(nodes, edges);
+    let sccs = toposort_scc(nodes, edges);
 
     assert_eq!(sccs.len(), 3);
     for c in &sccs {
@@ -147,13 +147,13 @@ fn stable_toposort_scc_dag() {
 
 #[test]
 fn empty_graph() {
-    let order = stable_toposort::<&str>(Vec::new(), []).unwrap();
+    let order = toposort::<&str>(Vec::new(), []).unwrap();
     assert!(order.is_empty());
 }
 
 #[test]
 fn single_node_no_edges() {
-    let order = stable_toposort(["only"], []).unwrap();
+    let order = toposort(["only"], []).unwrap();
     assert_eq!(order, ["only"]);
 }
 
@@ -164,10 +164,10 @@ fn layers_empty() {
 }
 
 #[test]
-fn stable_toposort_by_key_custom_order() {
+fn toposort_by_key_custom_order() {
     let nodes = ["aaa", "b", "cc"];
     let edges = [("b", "cc"), ("aaa", "cc")];
-    let order = stable_toposort_by_key(nodes, edges, |n| n.len()).unwrap();
+    let order = toposort_by_key(nodes, edges, |n| n.len()).unwrap();
     assert_eq!(order[0], "b");
     assert!(order.contains(&"aaa") && order.contains(&"cc"));
     let pos = |n: &str| order.iter().position(|&x| x == n).unwrap();
@@ -203,10 +203,10 @@ fn condensation_by_key_sorted_components() {
 }
 
 #[test]
-fn stable_toposort_scc_by_key_integration() {
+fn toposort_scc_by_key_integration() {
     let nodes = ["C", "A", "B"];
     let edges = [("A", "B"), ("B", "C")];
-    let sccs = stable_toposort_scc_by_key(nodes, edges, |n| *n);
+    let sccs = toposort_scc_by_key(nodes, edges, |n| *n);
     assert_eq!(sccs.len(), 3);
     assert!(sccs.iter().all(|c| c.len() == 1));
     let flat: std::collections::HashSet<_> = sccs.into_iter().flatten().collect();
@@ -218,7 +218,7 @@ fn stable_toposort_scc_by_key_integration() {
 fn edges_ignored_for_unknown_nodes() {
     let nodes = ["A", "B"];
     let edges = [("A", "B"), ("A", "Z"), ("Z", "B")];
-    let order = stable_toposort(nodes, edges).unwrap();
+    let order = toposort(nodes, edges).unwrap();
     assert_eq!(order, ["A", "B"]);
 }
 

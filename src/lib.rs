@@ -7,7 +7,7 @@
 //!
 //! # Algorithms
 //!
-//! - **Topological sort**: [`stable_toposort`] / [`stable_toposort_by_key`] — order
+//! - **Topological sort**: [`toposort`] / [`toposort_by_key`] — order
 //!   all nodes so that every edge goes from an earlier to a later node. Fails with
 //!   [`CycleError`] if the graph has a cycle.
 //! - **Layers**: [`toposort_layers`] / [`toposort_layers_by_key`] — group nodes into
@@ -17,7 +17,7 @@
 //!   the graph into maximal strongly connected components.
 //! - **Condensation**: [`condensation`] / [`condensation_by_key`] — build the DAG
 //!   of SCCs; [`Condensation`] holds the components and edges between component indices.
-//! - **Toposort of SCCs**: [`stable_toposort_scc`] / [`stable_toposort_scc_by_key`] —
+//! - **Toposort of SCCs**: [`toposort_scc`] / [`toposort_scc_by_key`] —
 //!   return SCCs in topological order (each SCC as a `Vec<N>`).
 //!
 //! # Examples
@@ -25,22 +25,22 @@
 //! Topological sort (DAG):
 //!
 //! ```rust
-//! use stable_toposort::stable_toposort;
+//! use stable_toposort::toposort;
 //!
 //! let nodes = ["prepare", "compile", "link"];
 //! let edges = [("prepare", "compile"), ("compile", "link")];
-//! let order = stable_toposort(nodes, edges).unwrap();
+//! let order = toposort(nodes, edges).unwrap();
 //! assert_eq!(order, ["prepare", "compile", "link"]);
 //! ```
 //!
 //! Cycle detection:
 //!
 //! ```rust
-//! use stable_toposort::{stable_toposort, CycleError};
+//! use stable_toposort::{toposort, CycleError};
 //!
 //! let nodes = ["a", "b"];
 //! let edges = [("a", "b"), ("b", "a")];
-//! let err: CycleError<&str> = stable_toposort(nodes, edges).unwrap_err();
+//! let err: CycleError<&str> = toposort(nodes, edges).unwrap_err();
 //! assert_eq!(err.cycle, ["a", "b", "a"]);
 //! ```
 //!
@@ -62,7 +62,7 @@ mod scc;
 mod condensation;
 
 pub use cycle::{find_cycle, CycleError};
-pub use toposort::{stable_toposort, stable_toposort_by_key};
+pub use toposort::{toposort, toposort_by_key};
 pub use layers::{toposort_layers, toposort_layers_by_key};
 pub use scc::{scc, scc_by_key};
-pub use condensation::{Condensation, condensation, condensation_by_key, stable_toposort_scc, stable_toposort_scc_by_key};
+pub use condensation::{Condensation, condensation, condensation_by_key, toposort_scc, toposort_scc_by_key};

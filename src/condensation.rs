@@ -3,7 +3,7 @@
 use std::collections::HashSet;
 
 use crate::scc;
-use crate::stable_toposort;
+use crate::toposort;
 
 /// The condensation of a directed graph: one node per SCC, edges between components.
 ///
@@ -92,21 +92,21 @@ where
 /// Computes the condensation (DAG of SCCs) and then topologically sorts it. The result
 /// is a vector of components (each a `Vec<N>`), in an order such that all edges between
 /// components go from an earlier component to a later one. The order of nodes within
-/// each component is unspecified; use [`stable_toposort_scc_by_key`] to fix it.
+/// each component is unspecified; use [`toposort_scc_by_key`] to fix it.
 ///
 /// The graph's condensation is always a DAG, so this never returns an error.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::stable_toposort_scc;
+/// use stable_toposort::toposort_scc;
 ///
 /// let nodes = ["a", "b", "c"];
 /// let edges = [("a", "b"), ("b", "c")];
-/// let sccs = stable_toposort_scc(nodes, edges);
+/// let sccs = toposort_scc(nodes, edges);
 /// assert_eq!(sccs.len(), 3);
 /// ```
-pub fn stable_toposort_scc<N>(
+pub fn toposort_scc<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
 ) -> Vec<Vec<N>>
@@ -114,7 +114,7 @@ where
     N: Eq + std::hash::Hash + Clone,
 {
     let cond = condensation(nodes, edges);
-    let order = stable_toposort(
+    let order = toposort(
         0..cond.components.len(),
         cond.edges.iter().copied(),
     )
@@ -127,20 +127,20 @@ where
 
 /// Returns strongly connected components in topological order, with nodes ordered by `key`.
 ///
-/// Same as [`stable_toposort_scc`], but nodes within each component are sorted by
+/// Same as [`toposort_scc`], but nodes within each component are sorted by
 /// `key`, giving a fully deterministic result.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use stable_toposort::stable_toposort_scc_by_key;
+/// use stable_toposort::toposort_scc_by_key;
 ///
 /// let nodes = ["C", "A", "B"];
 /// let edges = [("A", "B"), ("B", "C")];
-/// let sccs = stable_toposort_scc_by_key(nodes, edges, |n| *n);
+/// let sccs = toposort_scc_by_key(nodes, edges, |n| *n);
 /// assert_eq!(sccs, vec![vec!["A"], vec!["B"], vec!["C"]]);
 /// ```
-pub fn stable_toposort_scc_by_key<N, K>(
+pub fn toposort_scc_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
     key: impl Fn(&N) -> K,
@@ -149,7 +149,7 @@ where
     N: Eq + std::hash::Hash + Clone,
     K: Ord,
 {
-    let mut sccs = stable_toposort_scc(nodes, edges);
+    let mut sccs = toposort_scc(nodes, edges);
     for comp in &mut sccs {
         comp.sort_by_key(&key);
     }
@@ -177,10 +177,10 @@ mod tests {
     }
 
     #[test]
-    fn stable_toposort_scc_by_key_orders_within_components() {
+    fn toposort_scc_by_key_orders_within_components() {
         let nodes: [&str; 3] = ["C", "A", "B"];
         let edges = [("A", "B"), ("B", "C")];
-        let sccs = super::stable_toposort_scc_by_key(nodes, edges, |n: &&str| *n);
+        let sccs = super::toposort_scc_by_key(nodes, edges, |n: &&str| *n);
         assert_eq!(sccs.len(), 3);
         assert_eq!(sccs[0], ["A"]);
         assert_eq!(sccs[1], ["B"]);
