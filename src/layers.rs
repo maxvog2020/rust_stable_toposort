@@ -1,7 +1,33 @@
+//! Topological sort by layers (level-by-level) for DAGs.
+
 use std::collections::{HashMap, HashSet};
 
 use crate::{find_cycle, CycleError};
 
+/// Partitions nodes into layers such that edges only go from earlier to later layers.
+///
+/// Layer 0 contains all nodes with no incoming edges; each subsequent layer contains
+/// nodes whose predecessors all appear in earlier layers. Nodes within a layer are
+/// unordered with respect to each other (no edge between them), which is useful for
+/// parallel execution.
+///
+/// The order of nodes within each layer follows the order of `nodes` (insertion order).
+/// For a custom order within layers, use [`toposort_layers_by_key`].
+///
+/// # Errors
+///
+/// Returns [`CycleError`] if the graph contains a cycle.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::toposort_layers;
+///
+/// let nodes = ["a", "b", "c"];
+/// let edges = [("a", "c"), ("b", "c")];
+/// let layers = toposort_layers(nodes, edges).unwrap();
+/// assert_eq!(layers, vec![vec!["a", "b"], vec!["c"]]);
+/// ```
 pub fn toposort_layers<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -14,6 +40,27 @@ where
     toposort_layers_impl(&nodes, edges, |i| i)
 }
 
+/// Partitions nodes into layers, ordering nodes within each layer by `key`.
+///
+/// Same as [`toposort_layers`], but nodes in the same layer are sorted by comparing
+/// `key(node)`. This yields a deterministic order within each layer (e.g. alphabetical).
+///
+/// # Errors
+///
+/// Returns [`CycleError`] if the graph contains a cycle.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::toposort_layers_by_key;
+///
+/// let nodes = ["B", "A", "C"];
+/// let edges = [("A", "C"), ("B", "C")];
+/// let layers = toposort_layers_by_key(nodes, edges, |n| *n).unwrap();
+/// assert_eq!(layers.len(), 2);
+/// assert_eq!(layers[0], ["A", "B"]);
+/// assert_eq!(layers[1], ["C"]);
+/// ```
 pub fn toposort_layers_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,

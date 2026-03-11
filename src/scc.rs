@@ -1,5 +1,25 @@
+//! Strongly connected components (SCC) for directed graphs.
+
 use std::collections::HashMap;
 
+/// Computes the strongly connected components of the graph.
+///
+/// Returns a vector of components, each a vector of nodes. Every node appears in
+/// exactly one component. Two nodes are in the same component if and only if each
+/// is reachable from the other. The order of components and of nodes within a
+/// component is unspecified; use [`scc_by_key`] for a deterministic order.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::scc;
+///
+/// let nodes = ["a", "b", "c"];
+/// let edges = [("a", "b"), ("b", "c"), ("c", "a")];
+/// let components = scc(nodes, edges);
+/// assert_eq!(components.len(), 1);
+/// assert_eq!(components[0].len(), 3);
+/// ```
 pub fn scc<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -10,6 +30,22 @@ where
     scc_impl(nodes, edges)
 }
 
+/// Computes strongly connected components, with components and nodes ordered by `key`.
+///
+/// Same as [`scc`], but the order of components and the order of nodes within each
+/// component are determined by sorting with `key`. This yields reproducible output.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::scc_by_key;
+///
+/// let nodes = ["C", "A", "B"];
+/// let edges = [("A", "B"), ("B", "C"), ("C", "A")];
+/// let components = scc_by_key(nodes, edges, |n| *n);
+/// assert_eq!(components.len(), 1);
+/// assert_eq!(&components[0], &["A", "B", "C"]);
+/// ```
 pub fn scc_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,

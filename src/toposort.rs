@@ -1,8 +1,31 @@
+//! Stable topological sort for directed acyclic graphs (DAGs).
+
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::cmp::Reverse;
 
 use crate::{find_cycle, CycleError};
 
+/// Computes a deterministic topological order of `nodes` respecting `edges`.
+///
+/// The order is stable: given the same `nodes` and `edges`, the result is always
+/// the same. Nodes with no ordering constraint are ordered by their position in
+/// the `nodes` iterator.
+///
+/// # Errors
+///
+/// Returns [`CycleError`] if the graph contains a cycle. The error's `cycle` field
+/// contains a sequence of nodes that form a cycle.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::stable_toposort;
+///
+/// let nodes = ["prepare", "compile", "link"];
+/// let edges = [("prepare", "compile"), ("compile", "link")];
+/// let order = stable_toposort(nodes, edges).unwrap();
+/// assert_eq!(order, ["prepare", "compile", "link"]);
+/// ```
 pub fn stable_toposort<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -15,6 +38,26 @@ where
     stable_toposort_impl(&nodes, edges, |i| i)
 }
 
+/// Computes a deterministic topological order, ordering ties by `key`.
+///
+/// Same as [`stable_toposort`], but when multiple nodes are valid as the next in
+/// the order, they are ordered by comparing `key(node)`. This gives full control
+/// over the resulting order (e.g. alphabetical, or by priority).
+///
+/// # Errors
+///
+/// Returns [`CycleError`] if the graph contains a cycle.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::stable_toposort_by_key;
+///
+/// let nodes = ["B", "A", "C"];
+/// let edges = [("A", "C"), ("B", "C")];
+/// let order = stable_toposort_by_key(nodes, edges, |n| *n).unwrap();
+/// assert_eq!(order, ["A", "B", "C"]);
+/// ```
 pub fn stable_toposort_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,

@@ -1,14 +1,42 @@
+//! Condensation (DAG of SCCs) and topological sort of strongly connected components.
+
 use std::collections::HashSet;
 
 use crate::scc;
 use crate::stable_toposort;
 
+/// The condensation of a directed graph: one node per SCC, edges between components.
+///
+/// The condensation is always a DAG. Node indices refer to `components`: edge `(i, j)`
+/// means there is at least one edge from some node in `components[i]` to some node in
+/// `components[j]`.
 #[derive(Debug, Clone)]
 pub struct Condensation<N> {
+    /// The strongly connected components; index `i` corresponds to component `i`.
     pub components: Vec<Vec<N>>,
+    /// Edges between components as pairs of component indices `(from, to)`.
     pub edges: Vec<(usize, usize)>,
 }
 
+/// Builds the condensation of the graph (DAG of strongly connected components).
+///
+/// Each element of `components` is a strongly connected component. The `edges` list
+/// contains pairs of component indices: `(i, j)` means there exists an edge from some
+/// node in `components[i]` to some node in `components[j]`. The order of components
+/// and of nodes within a component is unspecified; use [`condensation_by_key`] for
+/// a deterministic order.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::condensation;
+///
+/// let nodes = [1, 2, 3];
+/// let edges = [(1, 2), (2, 3)];
+/// let cond = condensation(nodes, edges);
+/// assert_eq!(cond.components.len(), 3);
+/// assert_eq!(cond.edges.len(), 2);
+/// ```
 pub fn condensation<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -39,6 +67,10 @@ where
     Condensation { components, edges }
 }
 
+/// Builds the condensation with components and nodes within each component ordered by `key`.
+///
+/// Same as [`condensation`], but the order of components and the order of nodes within
+/// each component are determined by sorting with `key`.
 pub fn condensation_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -55,6 +87,25 @@ where
     cond
 }
 
+/// Returns strongly connected components in topological order.
+///
+/// Computes the condensation (DAG of SCCs) and then topologically sorts it. The result
+/// is a vector of components (each a `Vec<N>`), in an order such that all edges between
+/// components go from an earlier component to a later one. The order of nodes within
+/// each component is unspecified; use [`stable_toposort_scc_by_key`] to fix it.
+///
+/// The graph's condensation is always a DAG, so this never returns an error.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::stable_toposort_scc;
+///
+/// let nodes = ["a", "b", "c"];
+/// let edges = [("a", "b"), ("b", "c")];
+/// let sccs = stable_toposort_scc(nodes, edges);
+/// assert_eq!(sccs.len(), 3);
+/// ```
 pub fn stable_toposort_scc<N>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
@@ -74,6 +125,21 @@ where
         .collect()
 }
 
+/// Returns strongly connected components in topological order, with nodes ordered by `key`.
+///
+/// Same as [`stable_toposort_scc`], but nodes within each component are sorted by
+/// `key`, giving a fully deterministic result.
+///
+/// # Examples
+///
+/// ```rust
+/// use stable_toposort::stable_toposort_scc_by_key;
+///
+/// let nodes = ["C", "A", "B"];
+/// let edges = [("A", "B"), ("B", "C")];
+/// let sccs = stable_toposort_scc_by_key(nodes, edges, |n| *n);
+/// assert_eq!(sccs, vec![vec!["A"], vec!["B"], vec!["C"]]);
+/// ```
 pub fn stable_toposort_scc_by_key<N, K>(
     nodes: impl IntoIterator<Item = N>,
     edges: impl IntoIterator<Item = (N, N)>,
