@@ -1,0 +1,11 @@
+[package]
+name = "rust_stable_toposort"
+version = "0.1.0"
+edition = "2024"
+description = "Deterministic and stable topological sorting algorithms"
+# license = "MIT OR Apache-2.0"
+# repository = TODO: add repository
+keywords = ["toposort", "graph", "dag", "algorithm"]
+categories = ["algorithms"]
+
+[dependencies]
