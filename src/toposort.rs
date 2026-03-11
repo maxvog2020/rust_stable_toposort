@@ -13,7 +13,7 @@ use crate::cycle::{find_cycle, CycleError};
 ///
 /// # Errors
 ///
-/// Returns [`cycle::CycleError`] if the graph contains a cycle. The error's `cycle` field
+/// Returns [`crate::cycle::CycleError`] if the graph contains a cycle. The error's `cycle` field
 /// contains a sequence of nodes that form a cycle.
 ///
 /// # Examples
@@ -46,7 +46,7 @@ where
 ///
 /// # Errors
 ///
-/// Returns [`cycle::CycleError`] if the graph contains a cycle.
+/// Returns [`crate::cycle::CycleError`] if the graph contains a cycle.
 ///
 /// # Examples
 ///

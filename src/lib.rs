@@ -9,7 +9,7 @@
 //!
 //! - **Topological sort**: [`toposort::toposort`] / [`toposort::toposort_by_key`] — order
 //!   all nodes so that every edge goes from an earlier to a later node. Fails with
-//!   [`cycle::CycleError`] if the graph has a cycle.
+//!   [`crate::cycle::CycleError`] if the graph has a cycle.
 //! - **Layers**: [`layers::toposort_layers`] / [`layers::toposort_layers_by_key`] — group nodes into
 //!   layers (e.g. for parallel execution); nodes in the same layer have no dependencies
 //!   on each other.
