@@ -1,8 +1,7 @@
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::cmp::Reverse;
 
-use crate::find_cycle;
-use crate::CycleError;
+use crate::{find_cycle, CycleError};
 
 pub fn stable_toposort<N>(
     nodes: impl IntoIterator<Item = N>,

@@ -1,7 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::find_cycle;
-use crate::CycleError;
+use crate::{find_cycle, CycleError};
 
 pub fn toposort_layers<N>(
     nodes: impl IntoIterator<Item = N>,
