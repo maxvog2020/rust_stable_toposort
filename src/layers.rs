@@ -65,7 +65,7 @@ where
     loop {
         let mut ready: Vec<(K, N)> = in_degree
             .iter()
-            .filter(|(_, &d)| d == 0)
+            .filter(|&(_, &d)| d == 0)
             .map(|(n, _)| (key(index_of[n]), n.clone()))
             .collect();
         if ready.is_empty() {
